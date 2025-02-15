@@ -1,0 +1,9 @@
+---
+- name: KeepAliveD.Firewalld - Enable protocol 112 (VRRP) on firewall
+  ansible.posix.firewalld:
+    rich_rule: 'rule protocol value="vrrp" accept'
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+  notify: "FirewallD Reload"

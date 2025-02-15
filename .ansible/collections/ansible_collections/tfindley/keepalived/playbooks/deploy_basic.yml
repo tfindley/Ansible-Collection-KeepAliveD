@@ -1,0 +1,9 @@
+- name: Deploy KeepAliveD
+  hosts:
+    - all
+
+  # become: true  # This shouldn't occour at the playbook level
+  gather_facts: true
+
+  roles:
+    - tfindley.keepalived.keepalived

@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: MIT-0
+---
+# handlers file for keepalived
+# ----------
+
+- name: Daemon reload
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# ----------
+
+- name: "UFW Reload"
+  become: true
+  community.general.ufw:
+    state: reloaded
+
+# ----------
+
+- name: "FirewallD Start"
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+
+- name: "FirewallD Restart"
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: restarted
+
+- name: "FirewallD Stop"
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+
+- name: "FirewallD Reload"
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+
+- name: "FirewallD Enabled"
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+
+# ----------
+
+- name: "KeepAliveD Start"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    state: started
+
+- name: "KeepAliveD Stop"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    state: stopped
+
+- name: "KeepAliveD Restart"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    state: restarted
+
+- name: "KeepAliveD Reload"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    state: reloaded
+
+- name: "KeepAliveD Enabled"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    enabled: true
+
+- name: "KeepAliveD Enabled"
+  become: true
+  ansible.builtin.service:
+    name: keepalived
+    enabled: false

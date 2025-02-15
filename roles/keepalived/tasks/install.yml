@@ -1,0 +1,19 @@
+---
+
+- name: "KeepAliveD.Install - Set ip Non-local bind to on"
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: "KeepAliveD.Install - Install KeepAliveD"
+  become: true
+  ansible.builtin.package:
+    name: "keepalived"
+    state: present
+  notify:
+    - "KeepAliveD Enabled"
+    - "KeepAliveD Start"

@@ -1,0 +1,27 @@
+---
+
+# - name: "KeepAliveD.UFW - Configure the kernel to keep connections alive on UFW changes"
+#   become: true
+#   ansible.posix.sysctl:
+#     name: net.netfilter.nf_conntrack_tcp_be_liberal
+#     value: 1
+#     state: present
+#     sysctl_set: true
+#     reload: true
+
+- name: "KeepAliveD.UFW - Edit UFW before.rules to allow Ah and vrrp"
+  become: true
+  ansible.builtin.blockinfile:
+    path: '/etc/ufw/before.rules'
+    insertbefore: "# don't delete the 'COMMIT' line or these rules won't be processed"
+    block: |
+      # Required rules for KeepAliveD
+      {% for item in keepalived_vip %}
+      -A ufw-before-output -p Ah -d {{ item | ansible.utils.ipaddr }} -j ACCEPT
+      -A ufw-before-output -p vrrp -d {{ item | ansible.utils.ipaddr }} -j ACCEPT
+      {% endfor %}
+      {% for item in keepalived_unicast_peer %}
+      -A ufw-before-output -p Ah -d {{ item | ansible.utils.ipaddr }} -j ACCEPT
+      -A ufw-before-output -p vrrp -d {{ item | ansible.utils.ipaddr }} -j ACCEPT
+      {% endfor %}
+  notify: "UFW Reload"

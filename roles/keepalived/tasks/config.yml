@@ -1,0 +1,13 @@
+---
+
+- name: "KeepAliveD.Config - Copy Configuration file"
+  become: true
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: "/etc/keepalived/keepalived.conf"
+    owner: "root"
+    group: "root"
+    mode: '0600'
+    backup: true
+  notify:
+    - "KeepAliveD Restart"

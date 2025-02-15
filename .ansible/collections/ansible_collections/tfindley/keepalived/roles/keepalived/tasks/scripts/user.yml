@@ -1,0 +1,19 @@
+---
+
+- name: "KeepAliveD.User - Create KeepAliveD Script Group"
+  become: true
+  ansible.builtin.group:
+    name: "{{ keepalived_checkscript_group }}"
+    system: true
+  notify:
+    - "KeepAliveD Restart"
+
+- name: "KeepAliveD.User - Create KeepAliveD Script User"
+  become: true
+  ansible.builtin.user:
+    name: "{{ keepalived_checkscript_user }}"
+    create_home: false
+    system: true
+    group: "{{ keepalived_checkscript_group }}"
+  notify:
+    - "KeepAliveD Restart"

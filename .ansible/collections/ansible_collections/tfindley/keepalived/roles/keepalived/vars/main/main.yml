@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT-0
+---
+# vars file for keepalived
+
+_keepalived_data_dir:
+  default: "/etc/keepalived"
+  RedHat: "/etc/keepalived"
+keepalived_data_dir: "{{ _keepalived_data_dir[ansible_os_family] | default(_keepalived_data_dir['default']) }}"
+
+_keepalived_iplist: |-
+  {%- for host in ansible_play_hosts_all | difference([inventory_hostname]) %}
+  {{ hostvars[host]['ansible_default_ipv4']['address'] }}{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+keepalived_iplist: "{{ _keepalived_iplist | split(',') }}"

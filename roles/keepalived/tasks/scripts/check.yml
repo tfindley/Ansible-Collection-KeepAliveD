@@ -1,0 +1,24 @@
+---
+
+- name: "KeepAliveD.Check - Create Vault Check Script directory"
+  become: true
+  ansible.builtin.file:
+    path: "{{ keepalived_checkscript_path }}"
+    state: directory
+    owner: "{{ keepalived_checkscript_user }}"
+    group: "{{ keepalived_checkscript_group }}"
+    mode: '0700'
+
+- name: "KeepAliveD.Check - Create Vault Check Scripts"
+  become: true
+  notify:
+    - "KeepAliveD Restart"
+  loop: "{{ keepalived_checkscript_scripts }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  ansible.builtin.copy:
+    dest: "{{ keepalived_checkscript_path }}/{{ item.filename }}"
+    content: "{{ item.content }}"
+    owner: "{{ keepalived_checkscript_user }}"
+    group: "{{ keepalived_checkscript_group }}"
+    mode: "{{ item.mode | string | default('0700') }}"

@@ -1,0 +1,6 @@
+---
+
+_keepalived_checkscript_dir:
+  default: "{{ keepalived_data_dir }}/scripts"
+  RedHat: "{{ keepalived_data_dir }}/scripts"
+keepalived_checkscript_dir: "{{ _keepalived_checkscript_dir[ansible_os_family] | default(_keepalived_checkscript_dir['default']) }}"

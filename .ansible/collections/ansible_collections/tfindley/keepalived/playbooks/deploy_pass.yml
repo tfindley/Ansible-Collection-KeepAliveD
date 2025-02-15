@@ -1,0 +1,59 @@
+- name: Deploy KeepAliveD
+  hosts:
+    - all
+
+  # become: true  # This shouldn't occour at the playbook level
+  gather_facts: true
+
+  roles:
+    - tfindley.keepalived.keepalived
+
+  vars:
+
+    # keepalived_vip: 10.181.2.250
+    # keepalived_pass:
+
+    keepalived_vrrp:
+      - name: VI_1
+        interface: "{{ ansible_default_ipv4['alias'] }}"
+        priority: 100
+        virtual_router_id: 123
+        advert_int: 1
+        garp:
+          master_refresh: 5
+          master_refresh_repeat: 1
+        authentication:
+          type: PASS  # or AH
+          pass: "{{ keepalived_pass }}"  # "{{ lookup('community.general.random_string', length=32, special=false) }}"
+        unicast_src_ip: "{{ ansible_default_ipv4.address }}"  # Shouldn't need to adjust
+        unicast_peer: "{{ keepalived_iplist }}" # shouldn't be any need to change this
+        vip:
+          - "{{ keepalived_vip }}"
+        # checkscript:
+        #   - vault_active_node_script
+
+    keepalived_checkscript_enabled: false
+    # keepalived_checkscript_scripts:
+    #   - name: vault_active_node_script
+    #     filename: check_vault.py
+    #     exec: --timeout=1 --url='https://127.0.0.1:8200'
+    #     content: "{{ lookup('ansible.builtin.file', 'hashicorp/vault/check_vault.py') }}"
+    #     mode: '0700'
+    #     interval: 2  # Run script every 2 seconds
+    #     fall: 1  # If script returns non-zero 2 times in succession, enter FAULT state
+    #     rise: 3  # If script returns zero r times in succession, exit FAULT state
+    #     timeout: 2  # Wait up to t seconds for script before assuming non-zero exit code
+    #     weight: 50  # Reduce priority by 50 on fall
+
+  pre_tasks:
+# Warning: using this variable will break idempotency and reload keepalived every run
+# This is because a new random password will be generated every run.
+# To override this, set the 'keepalived_pass' variable
+    - name: Random password var generation  # noqa: run-once
+      run_once: true
+      # no_log: true
+      delegate_to: localhost
+      ansible.builtin.set_fact:
+        keepalived_pass: "{{ lookup('community.general.random_string', length=32, special=false) }}"
+      when:
+        - keepalived_pass is not defined or keepalived_pass | length == 0

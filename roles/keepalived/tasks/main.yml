@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for keepalived
+
+- name: KeepAliveD.Main - Gather Facts
+  ansible.builtin.setup:
+
+- name: KeepAliveD.Main - Gather service facts
+  become: false
+  ansible.builtin.service_facts:
+
+# ------
+
+- name: KeepAliveD.Main - Handoff to Preflight task
+  ansible.builtin.include_tasks:
+    file: "preflight.yml"
+
+- name: KeepAliveD.Main - Handoff to Install task
+  ansible.builtin.include_tasks:
+    file: "install.yml"
+
+# ------
+
+- name: KeepAliveD.Main - Handoff to Script User task
+  when:
+    - keepalived_checkscript_enabled | bool
+  ansible.builtin.include_tasks:
+    file: "scripts/user.yml"
+
+- name: KeepAliveD.Main - Handoff to Script Check task
+  when:
+    - keepalived_checkscript_enabled | bool
+  ansible.builtin.include_tasks:
+    file: "scripts/check.yml"
+
+# ------
+
+- name: KeepAliveD.Main - Handoff to Config task
+  ansible.builtin.include_tasks:
+    file: "config.yml"
+
+# ------
+
+# UFW
+- name: KeepAliveD.Main - Hand off to UFW task
+  when:  # Only execute this task if UFW is deteted as installed.
+    - "'ufw' in services"
+    - ansible_facts.services['ufw'].state == 'running'
+  ansible.builtin.include_tasks:
+    file: firewall/ufw.yml
+
+# FirewallD
+- name: KeepAliveD.Main - Hand off to FirewallD task
+  when:  # Only execute this task if firewalld is deteted as installed.
+    - "'firewalld.service' in services"
+    - ansible_facts.services['firewalld.service'].state == 'running'
+  ansible.builtin.include_tasks:
+    file: firewall/firewalld.yml

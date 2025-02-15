@@ -1,0 +1,39 @@
+{
+ "collection_info": {
+  "namespace": "tfindley",
+  "name": "keepalived",
+  "version": "0.0.1",
+  "authors": [
+   "Tristan Findley <example@domain.com>"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "application",
+   "infrastructure",
+   "keepalived",
+   "networking",
+   "highavailability",
+   "ha"
+  ],
+  "description": "your collection description",
+  "license": [
+   "MIT"
+  ],
+  "license_file": null,
+  "dependencies": {
+   "ansible.posix": ">=1.5.0"
+  },
+  "repository": "http://example.com/repository",
+  "documentation": "http://docs.example.com",
+  "homepage": "http://example.com",
+  "issues": "http://example.com/issue/tracker"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "ac20953d623860bc88b621b0f04df02b1150ff0f05f463f7f3ad3f28c2ce45a2",
+  "format": 1
+ },
+ "format": 1
+}

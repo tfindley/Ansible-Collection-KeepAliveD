@@ -1,0 +1,66 @@
+# {{ ansible_managed }}
+
+global_defs {
+{% if keepalived_router_id is defined %}
+    router_id {{ keepalived_router_id }}
+{% endif %}
+    vrrp_version 3
+{% if keepalived_checkscript_enabled | bool %}
+    enable_script_security
+    script_user {{ keepalived_checkscript_user }} {{ keepalived_checkscript_group }}
+{% endif %}
+}
+
+{% if keepalived_checkscript_enabled | bool %}
+{% for script in keepalived_checkscript_scripts %}
+vrrp_script {{ script.name }} {
+    script      "{{ keepalived_checkscript_path }}/{{ script.filename }}" {{ script.exec | default(nul) }}
+    interval    {{ script.interval }}
+    fall        {{ script.fall }}
+    rise        {{ script.rise }}
+    timeout     {{ script.timeout }}
+    weight      {{ script.weight }}
+}
+{% endfor %}
+{% endif %}
+
+{% for vrrp in keepalived_vrrp %}
+vrrp_instance {{ vrrp.name }} {
+{% if vrrp.state is defined %}
+    state                       {{ vrrp.state }}
+{% endif %}
+    interface                   {{ vrrp.interface }}
+    priority                    {{ vrrp.priority }}
+    virtual_router_id           {{ vrrp.virtual_router_id }}
+    advert_int                  {{ vrrp.advert_int }}
+    accept
+{% if vrrp.authentication is defined %}
+    authentication {
+        auth_type {{ vrrp.authentication.type | upper }}
+        auth_pass {{ vrrp.authentication.pass }}
+    }
+{% endif %}
+{% if vrrp.garp is defined %}
+    garp_master_refresh         {{ vrrp.garp.master_refresh }}
+    garp_master_refresh_repeat  {{ vrrp.garp.master_refresh_repeat }}
+{% endif %}
+    unicast_src_ip              {{ vrrp.unicast_src_ip | ansible.utils.ipaddr }}
+    unicast_peer {
+{% for peerip in vrrp.unicast_peer | sort %}
+        {{ peerip | ansible.utils.ipaddr }}
+{% endfor %}
+    }
+
+    virtual_ipaddress {
+        {% for vip in vrrp.vip %}
+        {{ vip | ansible.utils.ipaddr }}
+        {% endfor %}
+    }
+
+{% if keepalived_checkscript_enabled | bool %}{% for script in vrrp.checkscript %}
+    track_script {
+        {{ script }}
+    }
+{% endfor %}{% endif %}
+}
+{% endfor %}
