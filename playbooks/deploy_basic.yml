@@ -7,3 +7,8 @@
 
   roles:
     - tfindley.keepalived.keepalived
+
+  vars:
+    # keepalived_enabled: true
+    # keepalived_vip: 10.181.2.250
+    # keepalived_pass:
