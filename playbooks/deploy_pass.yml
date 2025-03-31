@@ -15,9 +15,10 @@
 
     keepalived_vrrp:
       - name: VI_1
+        state: "{{ keepalived_state | default('BACKUP') }}"
         interface: "{{ ansible_default_ipv4['alias'] }}"
-        priority: 100
-        virtual_router_id: 123
+        priority: "{{ keepalived_priority | default('100') }}"
+        virtual_router_id: "{{ keepalived_vrid }}"
         advert_int: 1
         garp:
           master_refresh: 5
