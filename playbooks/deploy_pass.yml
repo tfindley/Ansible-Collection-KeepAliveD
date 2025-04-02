@@ -10,14 +10,16 @@
 
   vars:
 
-    # keepalived_vip: 10.181.2.250
+    # keepalived_enabled: true
+    # keepalived_vip: 
     # keepalived_pass:
 
+    keepalived_vrrp_version: 2
     keepalived_vrrp:
       - name: VI_1
         state: "{{ keepalived_state | default('BACKUP') }}"
         interface: "{{ ansible_default_ipv4['alias'] }}"
-        priority: "{{ keepalived_priority | default('100') }}"
+        priority: "{{ keepalived_priority | default(100) }}"
         virtual_router_id: "{{ keepalived_vrid }}"
         advert_int: 1
         garp:
@@ -25,7 +27,7 @@
           master_refresh_repeat: 1
         authentication:
           type: PASS  # or AH
-          pass: "{{ keepalived_pass }}"  # "{{ lookup('community.general.random_string', length=32, special=false) }}"
+          pass: "{{ keepalived_pass }}"  # "{{ lookup('community.general.random_string', length=8, special=false) }}"
         unicast_src_ip: "{{ ansible_default_ipv4.address }}"  # Shouldn't need to adjust
         unicast_peer: "{{ keepalived_iplist }}" # shouldn't be any need to change this
         vip:
@@ -55,6 +57,6 @@
       # no_log: true
       delegate_to: localhost
       ansible.builtin.set_fact:
-        keepalived_pass: "{{ lookup('community.general.random_string', length=32, special=false) }}"
+        keepalived_pass: "{{ lookup('community.general.random_string', length=8, special=false) }}"
       when:
         - keepalived_pass is not defined or keepalived_pass | length == 0

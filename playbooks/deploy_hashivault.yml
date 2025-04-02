@@ -11,14 +11,14 @@
   vars:
 
     # keepalived_enabled: true
-    # keepalived_vip: 10.181.2.250
+    # keepalived_vip: 
     # keepalived_pass:
 
     keepalived_vrrp:
       - name: VI_1
         interface: "{{ ansible_default_ipv4['alias'] }}"
-        priority: 100
-        virtual_router_id: 123
+        priority: "{{ keepalived_priority }}"
+        virtual_router_id: "{{ keepalived_vrid }}"
         advert_int: 1
         garp:
           master_refresh: 5
