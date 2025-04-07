@@ -1,10 +1,13 @@
 # {{ ansible_managed }}
 
 global_defs {
+    max_auto_priority {{ keepalived_max_auto_priority }}
 {% if keepalived_router_id is defined %}
     router_id {{ keepalived_router_id }}
 {% endif %}
-    vrrp_version 3
+{% if keepalived_vrrp_version is defined %}
+    vrrp_version {{ keepalived_vrrp_version }}
+{% endif %}
 {% if keepalived_checkscript_enabled | bool %}
     enable_script_security
     script_user {{ keepalived_checkscript_user }} {{ keepalived_checkscript_group }}
@@ -14,7 +17,7 @@ global_defs {
 {% if keepalived_checkscript_enabled | bool %}
 {% for script in keepalived_checkscript_scripts %}
 vrrp_script {{ script.name }} {
-    script      "{{ keepalived_checkscript_path }}/{{ script.filename }}" {{ script.exec | default(nul) }}
+    script      "{{ keepalived_checkscript_path }}/{{ script.filename }} {{ script.exec | default(nul) }}"
     interval    {{ script.interval }}
     fall        {{ script.fall }}
     rise        {{ script.rise }}
@@ -34,7 +37,7 @@ vrrp_instance {{ vrrp.name }} {
     virtual_router_id           {{ vrrp.virtual_router_id }}
     advert_int                  {{ vrrp.advert_int }}
     accept
-{% if vrrp.authentication is defined %}
+{% if keepalived_vrrp_version != 3 and vrrp.authentication is defined %}
     authentication {
         auth_type {{ vrrp.authentication.type | upper }}
         auth_pass {{ vrrp.authentication.pass }}
@@ -52,9 +55,9 @@ vrrp_instance {{ vrrp.name }} {
     }
 
     virtual_ipaddress {
-        {% for vip in vrrp.vip %}
+{% for vip in vrrp.vip %}
         {{ vip | ansible.utils.ipaddr }}
-        {% endfor %}
+{% endfor %}
     }
 
 {% if keepalived_checkscript_enabled | bool %}{% for script in vrrp.checkscript %}
