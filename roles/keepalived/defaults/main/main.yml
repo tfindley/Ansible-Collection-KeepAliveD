@@ -1,24 +1,42 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # defaults file for keepalived
-keepalived_enabled: false
 
-keepalived_vrrp:
-  - name: VI_1
-    interface: "{{ ansible_default_ipv4['alias'] }}"
-    priority: 100
-    virtual_router_id: 123
-    advert_int: 1
-    unicast_src_ip: "{{ ansible_default_ipv4.address }}"  # Shouldn't need to adjust
-    unicast_peer: "{{ keepalived_iplist }}" # shouldn't be any need to change this
-    vip:
-      - "{{ keepalived_vip }}"
-    # checkscript: []
+keepalived_enabled: false  # Override this to enable keepalived
 
+# Helper variables - only usable if keepalived_vrrp isnt overriden)
+keepalived_vip: 192.168.69.201
+keepalived_vrid: 123
+keepalived_priority: 100
+keepalived_state: "BACKUP"
+
+# Global Defs
+keepalived_max_auto_priority: 99
+keepalived_vrrp_version: 2  # I dont recommend changing this unless you need to use authentication
 keepalived_checkscript_enabled: false
 keepalived_checkscript_user: keepalived_script
 keepalived_checkscript_group: keepalived_script
 keepalived_checkscript_path: "{{ keepalived_checkscript_dir }}"
+
+# VRRP
+keepalived_vrrp:
+  - name: VI_1
+    state: "{{ keepalived_state | default('BACKUP') }}"
+    interface: "{{ ansible_default_ipv4['alias'] }}"
+    priority: "{{ keepalived_priority }}"
+    virtual_router_id: "{{ keepalived_vrid }}"
+    advert_int: 1
+    # garp:
+    #   master_refresh: 5
+    #   master_refresh_repeat: 1
+    # authentication:  # Only compatible with VRRP Version 2
+    #   type: PASS  # or AH
+    #   pass: "{{ keepalived_pass }}"  # "{{ lookup('community.general.random_string', length=8, special=false) }}"
+    unicast_src_ip: "{{ ansible_default_ipv4.address }}"  # Shouldn't need to adjust
+    unicast_peer: "{{ keepalived_iplist }}" # shouldn't be any need to change this - see vars/main.yml
+    vip:
+      - "{{ keepalived_vip }}"
+    # checkscript: []
 
 # keepalived_checkscript_scripts:
 #   - name: vault_active_node_script
